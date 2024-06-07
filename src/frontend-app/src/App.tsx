@@ -1,15 +1,42 @@
 import { useEffect, useState } from "react";
-import { Button, notification, Menu, Switch, MenuTheme } from "antd";
-import TrivyReport from "./components/trivy-report/TrivyReport";
-import TableTitle from "./components/shared/TableTitle";
-import defaultData from "./data/data.json";
-import { NormalizedResultForDataTable, UploadInfo } from "./types";
-import { getSecrets, getMisconfigurationSummary, getK8sClusterSummaryForInfraAssessment, getK8sClusterSummaryForRBACAssessment, getMisconfigurations, getVulnerabilities, getSupplyChainSBOM } from "./utils/index";
-import { UploadOutlined, ContainerOutlined, SettingOutlined, AlertOutlined, MenuFoldOutlined, MenuUnfoldOutlined, BugOutlined } from "@ant-design/icons";
+import { Button, notification, Row, Col, Card, Menu, Switch, MenuTheme, Layout } from "antd";
+import { DashboardOutlined, UploadOutlined, ContainerOutlined, SettingOutlined, AlertOutlined, MenuFoldOutlined, MenuUnfoldOutlined, BugOutlined } from "@ant-design/icons";
+import { Column, Line, Pie, Radar } from '@ant-design/plots'; // Changed from @ant-design/charts to @ant-design/plots
 import "./App.css";
-import type { MenuProps } from "antd";
 
+const { Header, Sider, Content, Footer } = Layout; // Add Sider from Layout
 
+const columnData = [
+  { type: 'Product A', sales: 38 },
+  { type: 'Product B', sales: 52 },
+  { type: 'Product C', sales: 61 },
+  { type: 'Product D', sales: 145 },
+];
+
+const lineData = [
+  { month: 'Jan', value: 30 },
+  { month: 'Feb', value: 40 },
+  { month: 'Mar', value: 35 },
+  { month: 'Apr', value: 50 },
+];
+
+const pieData = [
+  { type: 'Category A', value: 27 },
+  { type: 'Category B', value: 25 },
+  { type: 'Category C', value: 18 },
+  { type: 'Category D', value: 15 },
+  { type: 'Category E', value: 10 },
+  { type: 'Others', value: 5 },
+];
+
+const radarData = [
+  { item: 'Design', a: 70 },
+  { item: 'Development', a: 60 },
+  { item: 'Marketing', a: 50 },
+  { item: 'Sales', a: 40 },
+  { item: 'Support', a: 60 },
+  { item: 'Administration', a: 70 },
+];
 
 type MenuItem = {
   key: string;
@@ -17,21 +44,39 @@ type MenuItem = {
   label: string;
 };
 
-
 function App() {
-  const [vulnerabilities, setVulnerabilities] = useState<NormalizedResultForDataTable[]>([]);
-  const [secrets, setSecrets] = useState<NormalizedResultForDataTable[]>([]);
-  const [misconfigurations, setMisconfigurations] = useState<NormalizedResultForDataTable[]>([]);
-  const [misconfigurationSummary, setMisconfigurationSummary] = useState<NormalizedResultForDataTable[]>([]);
-  const [k8sClusterSummaryInfraAssessment, setK8sClusterSummaryInfraAssessment] = useState<NormalizedResultForDataTable[]>([]);
-  const [k8sClusterSummaryRBACAssessment, setK8sClusterSummaryRBACAssessment] = useState<NormalizedResultForDataTable[]>([]);
-  const [supplyChainSBOM, setSupplyChainSBOM] = useState<NormalizedResultForDataTable[]>([]);
-  const [selectedMenu, setSelectedMenu] = useState("vulnerabilities");
-  const [loadedReport, setLoadedReport] = useState("");
+  const [selectedMenu, setSelectedMenu] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [theme, setTheme] = useState<MenuTheme>('light');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [reportTitle, setReportTitle] = useState('Trivy Report');
+
+  const columnConfig = {
+    data: columnData,
+    xField: 'type',
+    yField: 'sales',
+    colorField: 'type',
+  };
+
+  const lineConfig = {
+    data: lineData,
+    xField: 'month',
+    yField: 'value',
+  };
+
+  const pieConfig = {
+    data: pieData,
+    angleField: 'value',
+    colorField: 'type',
+  };
+
+  const radarConfig = {
+    data: radarData,
+    xField: 'item',
+    yField: 'a',
+    seriesField: 'item',
+    area: {},
+    point: {},
+  };
 
   const onThemeChanged = (value: boolean) => {
     setTheme(value ? 'dark' : 'light');
@@ -47,110 +92,97 @@ function App() {
 
   useEffect(() => {
     setMenuItems([
-      { key: "vulnerabilities", icon: <BugOutlined />, label: `Vulnerabilities (${vulnerabilities.length})` },
-      { key: "secrets", icon: <BugOutlined />, label: `Secrets (${secrets.length})` },
-      { key: "misconfigurationSummary", icon: <SettingOutlined />, label: `Misconfiguration Summary (${misconfigurationSummary.length})` },
-      { key: "misconfigurations", icon: <SettingOutlined />, label: `Misconfigurations (${misconfigurations.length})` },
-      { key: "k8sClusterSummary", icon: <AlertOutlined />, label: `K8s Cluster Summary (${k8sClusterSummaryInfraAssessment.length} / ${k8sClusterSummaryRBACAssessment.length})` },
-      { key: "supplyChainSBOM", icon: <ContainerOutlined />, label: `Supply Chain SBOM(spdx) (${supplyChainSBOM.length})`  },
+      { key: "dashboard", icon: <DashboardOutlined />, label: `Dashboard` },
+      { key: "vulnerabilities", icon: <BugOutlined />, label: `Vulnerabilities` },
+      { key: "secrets", icon: <BugOutlined />, label: `Secrets` },
+      { key: "misconfigurationSummary", icon: <SettingOutlined />, label: `Misconfiguration Summary` },
+      { key: "misconfigurations", icon: <SettingOutlined />, label: `Misconfigurations` },
+      { key: "k8sClusterSummary", icon: <AlertOutlined />, label: `K8s Cluster Summary` },
+      { key: "supplyChainSBOM", icon: <ContainerOutlined />, label: `Supply Chain SBOM` },
       { key: "loadAReport", icon: <UploadOutlined />, label: "Load a report" }
     ]);
-  }, [vulnerabilities, misconfigurationSummary, misconfigurations, k8sClusterSummaryInfraAssessment, k8sClusterSummaryRBACAssessment, supplyChainSBOM]);
-
-  useEffect(() => {
-    setVulnerabilities(getVulnerabilities(defaultData));
-    setSecrets(getSecrets(defaultData));
-    setMisconfigurations(getMisconfigurations(defaultData));
-    setMisconfigurationSummary(getMisconfigurationSummary(defaultData));
-    setK8sClusterSummaryInfraAssessment(getK8sClusterSummaryForInfraAssessment(defaultData));
-    setK8sClusterSummaryRBACAssessment(getK8sClusterSummaryForRBACAssessment(defaultData));
-    setSupplyChainSBOM(getSupplyChainSBOM(defaultData));
   }, []);
 
-  useEffect(() => {
-    if (menuItems.length > 0){
-      const label = menuItems.filter((item) => item?.key == selectedMenu);
-      setReportTitle(`Trivy Report - ${label[0]?.label}`);
-    }
-    
-  }, [selectedMenu]);
-
-  const onReportUpload = (info: UploadInfo) => {
-    console.log(info);
-    const file = info.file as Blob;
-
-    if (!(file instanceof Blob)) {
-      console.error("Uploaded file is not a Blob.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target && event.target.result) {
-        const content = event.target.result as string;
-        try {
-          const jsonObject = JSON.parse(content);
-          console.log("Parsed JSON object:", jsonObject);
-          setVulnerabilities(getVulnerabilities(jsonObject));
-          setSecrets(getSecrets(defaultData));
-          setMisconfigurations(getMisconfigurations(jsonObject));
-          setMisconfigurationSummary(getMisconfigurationSummary(jsonObject));
-          setK8sClusterSummaryInfraAssessment(getK8sClusterSummaryForInfraAssessment(jsonObject));
-          setK8sClusterSummaryRBACAssessment(getK8sClusterSummaryForRBACAssessment(jsonObject));
-          setSupplyChainSBOM(getSupplyChainSBOM(jsonObject));
-          
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-        }
-
-        console.log(info.file);
-        setLoadedReport(info.file.name);
-        notification.success({
-          message: "File Uploaded",
-          description: `${loadedReport} uploaded successfully.`,
-        });
-      }
-    };
-    reader.readAsText(file);
-  };
-
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <div id="menu">
-        <Switch
-          checked={theme === 'dark'}
-          onChange={onThemeChanged}
-          checkedChildren="Dark"
-          unCheckedChildren="Light"
-        />
-        <Button type="primary" onClick={onToggleCollapsed} style={{ margin: 16 }}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </Button>
-        <Menu
-          defaultSelectedKeys={[selectedMenu]}
-          mode="inline"
-          theme={theme}
-          inlineCollapsed={collapsed}
-          items={menuItems}
-          onClick={onMenuSelected}
-        />
-      </div>
-      <div id="content" style={{ flexGrow: 1, marginLeft: 20 }}>
-        <TableTitle title={reportTitle}/>  
-        <TrivyReport
-          vulnerabilities={vulnerabilities}
-          secrets={secrets}
-          misconfigurations={misconfigurations}
-          misconfigurationSummary={misconfigurationSummary}
-          k8sClusterSummaryInfraAssessment={k8sClusterSummaryInfraAssessment}
-          k8sClusterSummaryRBACAssessment={k8sClusterSummaryRBACAssessment}
-          selectedMenu={selectedMenu}
-          supplyChainSBOM={supplyChainSBOM}
-          onReportUpload={onReportUpload}
-          loadedReport={loadedReport}
-        />
-      </div>
-    </div>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={onToggleCollapsed} style={{ background: '#fff' }}>    
+        <Menu theme={theme} defaultSelectedKeys={[selectedMenu]} mode="inline" items={menuItems} onClick={onMenuSelected} />
+      </Sider>
+      <Layout>
+        <Header style={{ padding: 0, background: '#fff', textAlign: 'center' }}>
+          Trivy
+        </Header>
+        <Content style={{ margin: '0 16px' }}>
+          <div className="site-layout-content" style={{ marginTop: '20px' }}>
+            <Row gutter={[16, 16]}>
+              <Col span={24}>
+                <Card title="Core Metrics">
+                  <Row justify="space-between">
+                    <Col span={4}>
+                      <h2>79</h2>
+                      <p>Today's UV</p>
+                    </Col>
+                    <Col span={4}>
+                      <h2>3,286</h2>
+                      <p>Yesterday's UV</p>
+                    </Col>
+                    <Col span={4}>
+                      <h2>35</h2>
+                      <p>New Users</p>
+                    </Col>
+                    <Col span={4}>
+                      <h2>366</h2>
+                      <p>Last 7 Days' UV</p>
+                    </Col>
+                    <Col span={4}>
+                      <h2>1,372</h2>
+                      <p>Last 30 Days' UV</p>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
+            </Row>
+      
+            <Row gutter={[16, 16]} style={{ marginTop: '20px' }}>
+              <Col span={8}>
+                <Card title="User Source">
+                  <Column {...columnConfig} />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card title="Product Usage">
+                  <Pie {...pieConfig} />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card title="User Profile">
+                  <Radar {...radarConfig} />
+                </Card>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 16]} style={{ marginTop: '10px' }}>
+              <Col span={8}>
+                <Card title="User Source">
+                  <Column {...columnConfig} />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card title="Product Usage">
+                  <Pie {...pieConfig} />
+                </Card>
+              </Col>
+              <Col span={8}>
+                <Card title="User Profile">
+                  <Radar {...radarConfig} />
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>Created by scan2html ©2024</Footer>
+      </Layout>
+    </Layout>
   );
 }
 

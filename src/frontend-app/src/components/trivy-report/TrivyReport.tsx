@@ -6,6 +6,7 @@ import K8sClusterSummary from "./K8sClusterSummary";
 import SupplyChainSBOM from "./SupplyChainSBOM";
 import UploadAReport from "./UploadAReport";
 import Secrets from "./Secrets";
+import Dashboard from "./Dashboard";
 
 interface TrivyReportProps {
   vulnerabilities: NormalizedResultForDataTable[];
@@ -42,6 +43,7 @@ const TrivyReport: React.FC<TrivyReportProps> = ({
 
   return (
     <>
+      {selectedMenu === "dashboard" && <Dashboard result={vulnerabilities} />}
       {selectedMenu === "vulnerabilities" && <Vulnerabilities result={vulnerabilities} />}
       {selectedMenu === "secrets" && <Secrets result={secrets} />}
       {selectedMenu === "misconfigurations" && <Misconfigurations result={misconfigurations} />}
