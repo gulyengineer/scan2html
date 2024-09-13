@@ -44,7 +44,9 @@ jobs:
              npm ci # Use npm ci instead of npm install for CI environments
    
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: |
+              npm install @playwright/tes                                                               ║
+              npx playwright install --with-deps
         
       - name: Run Playwright tests
         run: |
