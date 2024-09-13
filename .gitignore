@@ -4,6 +4,14 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 
+###PLAYWRIGHT
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+
 ### STS ###
 .apt_generated
 .classpath
