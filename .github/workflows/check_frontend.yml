@@ -38,8 +38,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        working-directory: test/frontend app
-        run: npx playwright test
+        run: |
+              cd test/frontend app/
+              npx playwright test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
