@@ -14,6 +14,10 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
           
       - name: Build project
         run: |
@@ -30,10 +34,6 @@ jobs:
       #   working-directory: ./frontend
       #   run: |
       #     npx eslint src
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
 
       - name: Install dependencies
         run: |
