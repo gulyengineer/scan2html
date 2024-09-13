@@ -17,7 +17,8 @@ jobs:
   
       - name: Install dependencies
         uses: bahmutov/npm-install@e5c7e14408aa6089501de32bd16123b41738047e # v1.10.2
-
+        with:
+          working-directory: src/frontend-app
       - name: Build project
         run: |
           pwd
