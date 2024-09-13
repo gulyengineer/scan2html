@@ -41,12 +41,11 @@ jobs:
       - name: Install dependencies
         run: |
              cd src/frontend-app
+             npm install @playwright/test  
              npm ci # Use npm ci instead of npm install for CI environments
    
       - name: Install Playwright Browsers
-        run: |
-              npm install @playwright/test                                                               ║
-              npx playwright install --with-deps
+        run: npx playwright install --with-deps
         
       - name: Run Playwright tests
         run: |
