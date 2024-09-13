@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         uses: bahmutov/npm-install@e5c7e14408aa6089501de32bd16123b41738047e # v1.10.2
         with:
-          working-directory: src/frontend-app
+          working-directory: test/frontend-app
           
       - name: Build project
         run: |
@@ -40,12 +40,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-             cd src/frontend-app
-             npm install @playwright/test  
+             #cd src/frontend-app
+             #npm install @playwright/test  
              npm ci # Use npm ci instead of npm install for CI environments
    
       - name: Install Playwright Browsers
+        working-directory: test/frontend-app
         run: npx playwright install --with-deps
+        
         
       - name: Run Playwright tests
         run: |
