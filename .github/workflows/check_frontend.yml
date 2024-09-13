@@ -41,7 +41,7 @@ jobs:
         
       - name: Install dependencies
         run: |
-             cd test/frontend-app
+             cd src/frontend-app
              npm ci # Use npm ci instead of npm install for CI environments
             
       - name: Run Playwright tests
