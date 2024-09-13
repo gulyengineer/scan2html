@@ -14,13 +14,6 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
-        with:
-          working-directory: test/frontend-app
-        
-      - name: Install dependencies
-        uses: bahmutov/npm-install@e5c7e14408aa6089501de32bd16123b41738047e # v1.10.2
-        with:
-          working-directory: test/frontend-app
           
       - name: Build project
         run: |
@@ -38,10 +31,13 @@ jobs:
       #   run: |
       #     npx eslint src
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
       - name: Install dependencies
         run: |
-             #cd src/frontend-app
-             #npm install @playwright/test  
+             npm install @playwright/test  
              npm ci # Use npm ci instead of npm install for CI environments
    
       - name: Install Playwright Browsers
